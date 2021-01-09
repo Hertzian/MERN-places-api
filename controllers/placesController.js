@@ -1,6 +1,7 @@
-const HttpError = require('../models/http-error')
 const { v4 } = require('uuid')
 const { validationResult } = require('express-validator')
+const HttpError = require('../models/http-error')
+const getCoordsForAddress = require('../utils/location')
 
 let DUMMY_PLACES = [
   {
@@ -64,16 +65,25 @@ exports.getPlacesByUserId = (req, res, next) => {
 // @desc    get place by user id
 // @route   POST /api/places/
 // @access  private
-exports.createPlace = (req, res, next) => {
+exports.createPlace = async (req, res, next) => {
   const errors = validationResult(req)
 
-  if(errors.isEmpty()){
+  if (!errors.isEmpty()) {
     console.log(errors)
-    // res.status(422)
-    throw new HttpError('Invalid inputs passed, please check your data', 422)
+    // throw new HttpError('Invalid inputs passed, please check your data', 422)
+    return next(
+      new HttpError('Invalid inputs passed, please check your data', 422)
+    )
   }
 
-  const { title, description, coordinates, address, creator } = req.body
+  const { title, description, address, creator } = req.body
+
+  let coordinates
+  try {
+    coordinates = await getCoordsForAddress(address)
+  } catch (err) {
+    return next(err)
+  }
 
   const createdPlace = {
     id: v4(),
@@ -95,7 +105,7 @@ exports.createPlace = (req, res, next) => {
 exports.updatePlace = (req, res, next) => {
   const errors = validationResult(req)
 
-  if(errors.isEmpty()){
+  if (errors.isEmpty()) {
     console.log(errors)
     // res.status(422)
     throw new HttpError('Invalid inputs passed, please check your data', 422)
@@ -121,10 +131,10 @@ exports.updatePlace = (req, res, next) => {
 exports.deletePlace = (req, res, next) => {
   const placeId = req.params.placeId
 
-  if(DUMMY_PLACES.find(place => place.id === placeId)){
+  if (DUMMY_PLACES.find((place) => place.id === placeId)) {
     throw new HttpError('Could not find a place for that id.', 404)
   }
-  
+
   DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId)
 
   res.status(200).json({ message: 'Deleted place.' })
