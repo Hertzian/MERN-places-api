@@ -1,5 +1,6 @@
 const HttpError = require('../models/http-error')
 const { v4 } = require('uuid')
+const {validationResult} = require('express-validator')
 
 const DUMMY_USERS = [
   {
@@ -29,10 +30,17 @@ exports.getUsers = (req, res, next) => {
 // @route   POST /api/users/signup
 // @access  private
 exports.signup = (req, res, next) => {
+  const errors = validationResult(req)
+
+  if(errors.isEmpty()){
+    console.log(errors)
+    // res.status(422)
+    throw new HttpError('Invalid inputs passed, please check your data', 422)
+  }
   const { name, email, password } = req.body
 
   const user = DUMMY_USERS.find(user => user.email === email)
-  
+
   if(user){
     throw new HttpError('Email already exists', 422)
   }
