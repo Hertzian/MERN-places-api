@@ -1,5 +1,5 @@
 const HttpError = require('../models/http-error')
-const {v4} = require('uuid')
+const { v4 } = require('uuid')
 
 const DUMMY_PLACES = [
   {
@@ -32,7 +32,7 @@ const DUMMY_PLACES = [
 
 // @desc    get place by id
 // @route   /api/places/:placeId
-// @access
+// @access  private
 exports.getPlaceById = (req, res, next) => {
   const placeId = req.params.placeId
   const place = DUMMY_PLACES.find((p) => p.id === placeId)
@@ -45,7 +45,7 @@ exports.getPlaceById = (req, res, next) => {
 
 // @desc    get place by user id
 // @route   /api/places/user/:userId
-// @access
+// @access  private
 exports.getPlaceByUserId = (req, res, next) => {
   const userId = req.params.userId
 
@@ -61,8 +61,8 @@ exports.getPlaceByUserId = (req, res, next) => {
 }
 
 // @desc    get place by user id
-// @route   /api/places/user/:userId
-// @access
+// @route   POST /api/places/
+// @access  private
 exports.createPlace = (req, res, next) => {
   const { title, description, coordinates, address, creator } = req.body
 
@@ -77,5 +77,30 @@ exports.createPlace = (req, res, next) => {
 
   DUMMY_PLACES.push(createdPlace) // unshift(createdPlace) for first element
 
-  res.status(201).json({place: createdPlace})
+  res.status(201).json({ place: createdPlace })
+}
+
+// @desc    get place by user id
+// @route   PATCH /api/places/:placeId
+// @access  private
+exports.updatePlace = (req, res, next) => {
+  const { title, description } = req.body
+  const placeId = req.params.placeId
+
+  const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) }
+  const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId)
+
+  updatedPlace.title = title
+  updatedPlace.description = description
+
+  DUMMY_PLACES[placeIndex] = updatedPlace
+
+  res.status(200).json({ place: updatedPlace })
+}
+
+// @desc    get place by user id
+// @route   DELETE /api/places/:placeId
+// @access  private
+exports.deletePlace = (req, res, next) => {
+  const placeId = req.params.placeId
 }
