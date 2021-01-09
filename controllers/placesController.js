@@ -31,7 +31,7 @@ let DUMMY_PLACES = [
 ]
 
 // @desc    get place by id
-// @route   /api/places/:placeId
+// @route   GET /api/places/:placeId
 // @access  private
 exports.getPlaceById = (req, res, next) => {
   const placeId = req.params.placeId
@@ -44,7 +44,7 @@ exports.getPlaceById = (req, res, next) => {
 }
 
 // @desc    get place by user id
-// @route   /api/places/user/:userId
+// @route   GET /api/places/user/:userId
 // @access  private
 exports.getPlacesByUserId = (req, res, next) => {
   const userId = req.params.userId
