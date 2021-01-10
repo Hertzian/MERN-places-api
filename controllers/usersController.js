@@ -3,21 +3,6 @@ const { v4 } = require('uuid')
 const { validationResult } = require('express-validator')
 const User = require('../models/UserModel')
 
-const DUMMY_USERS = [
-  {
-    id: 'u1',
-    name: 'User 1',
-    email: 'user1@user.com',
-    password: '123456',
-  },
-  // {
-  //   id: 'u2',
-  //   name: 'User 2',
-  //   email: 'user2@user.com',
-  //   password: '123456',
-  // },
-]
-
 // @desc    get place by id
 // @route   GET /api/users
 // @access  private
@@ -51,7 +36,7 @@ exports.signup = async (req, res, next) => {
     return next(error)
   }
 
-  const { name, email, password, places } = req.body
+  const { name, email, password } = req.body
 
   let existingUser
   try {
@@ -78,7 +63,7 @@ exports.signup = async (req, res, next) => {
     password,
     image:
       'https://images.pexels.com/photos/3418814/pexels-photo-3418814.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-    places,
+    places: []
   })
 
   try {
