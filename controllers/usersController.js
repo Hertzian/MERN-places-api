@@ -1,6 +1,7 @@
 const HttpError = require('../models/http-error')
 const { v4 } = require('uuid')
-const {validationResult} = require('express-validator')
+const { validationResult } = require('express-validator')
+const User = require('../models/UserModel')
 
 const DUMMY_USERS = [
   {
@@ -29,32 +30,55 @@ exports.getUsers = (req, res, next) => {
 // @desc    get place by id
 // @route   POST /api/users/signup
 // @access  private
-exports.signup = (req, res, next) => {
+exports.signup = async (req, res, next) => {
   const errors = validationResult(req)
 
-  if(errors.isEmpty()){
-    console.log(errors)
-    // res.status(422)
-    throw new HttpError('Invalid inputs passed, please check your data', 422)
-  }
-  const { name, email, password } = req.body
-
-  const user = DUMMY_USERS.find(user => user.email === email)
-
-  if(user){
-    throw new HttpError('Email already exists', 422)
+  if (!errors.isEmpty()) {
+    const error = new HttpError(
+      'Invalid inputs passed, please check your data',
+      422
+    )
+    return next(error)
   }
 
-  const createdUser = {
-    id: v4(),
+  const { name, email, password, places } = req.body
+
+  let existingUser
+  try {
+    existingUser = await User.findOne({ email: email })
+  } catch (err) {
+    const error = new HttpError(
+      'Signing up failed, please try again later',
+      500
+    )
+    return next(error)
+  }
+
+  if (existingUser) {
+    const error = new HttpError(
+      'User exists already, please login instead',
+      422
+    )
+    return next(error)
+  }
+
+  const createdUser = new User({
     name,
     email,
     password,
+    image:
+      'https://images.pexels.com/photos/3418814/pexels-photo-3418814.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+    places,
+  })
+
+  try {
+    await createdUser.save()
+  } catch (err) {
+    const error = new HttpError('Signing up failed, please try again.', 500)
+    return next(error)
   }
 
-  DUMMY_USERS.push(createdUser)
-
-  res.status(201).json({ user: createdUser })
+  res.status(201).json({ user: createdUser.toObject({ getters: true }) })
 }
 
 // @desc    get place by id
@@ -67,7 +91,8 @@ exports.login = (req, res, next) => {
   console.log(user)
 
   if (!user || user.password !== password) {
-    throw new HttpError('Invalid credentials', 401)
+    const error =  new HttpError('Invalid credentials', 401)
+    return next(error)
   }
 
   res.json({ message: 'logged in', user })
