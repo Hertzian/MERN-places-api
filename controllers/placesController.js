@@ -64,18 +64,31 @@ exports.getPlaceById = async (req, res, next) => {
 // @desc    get place by user id
 // @route   GET /api/places/user/:userId
 // @access  private
-exports.getPlacesByUserId = (req, res, next) => {
+exports.getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.userId
 
-  const places = DUMMY_PLACES.filter((p) => p.creator === userId)
-
-  if (!places || places.length === 0) {
-    return next(
-      new HttpError('Could not find places of the provided user id.', 404)
+  let places
+  try {
+    places = await Place.find({ creator: userId }).exec()
+  } catch (err) {
+    const error = new HttpError(
+      'Fetching places failed, please try again later.',
+      500
     )
+
+    return next(error)
   }
 
-  res.json({ places })
+  if (!places || places.length === 0) {
+    const error = new HttpError(
+      'Could not find places of the provided user id.',
+      404
+    )
+
+    return next(error)
+  }
+
+  res.json({ places: places.map((place) => place.toObject({ getters: true })) })
 }
 
 // @desc    get place by user id
