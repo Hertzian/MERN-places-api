@@ -152,7 +152,10 @@ exports.updatePlace = async (req, res, next) => {
   try {
     place = await Place.findById(placeId).exec()
   } catch (err) {
-    const error = new HttpError('Something went wrong, could not update place', 500)
+    const error = new HttpError(
+      'Something went wrong, could not update place',
+      500
+    )
     return next(error)
   }
 
@@ -162,24 +165,42 @@ exports.updatePlace = async (req, res, next) => {
   try {
     await place.save()
   } catch (err) {
-    const error = new HttpError('Something went wrong, could not update place', 500)
+    const error = new HttpError(
+      'Something went wrong, could not update place',
+      500
+    )
     return next(error)
   }
 
-  res.status(200).json({ place: place.toObject({getters: true}) })
+  res.status(200).json({ place: place.toObject({ getters: true }) })
 }
 
 // @desc    get place by user id
 // @route   DELETE /api/places/:placeId
 // @access  private
-exports.deletePlace = (req, res, next) => {
+exports.deletePlace = async (req, res, next) => {
   const placeId = req.params.placeId
 
-  if (DUMMY_PLACES.find((place) => place.id === placeId)) {
-    throw new HttpError('Could not find a place for that id.', 404)
+  let place
+  try {
+    place = await Place.findById(placeId)
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not delete place',
+      500
+    )
+    return next(error)
   }
 
-  DUMMY_PLACES = DUMMY_PLACES.filter((p) => p.id !== placeId)
-
+  try {
+    await place.remove()
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not delete place',
+      500
+    )
+    return next(error)
+  }
+  
   res.status(200).json({ message: 'Deleted place.' })
 }
