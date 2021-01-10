@@ -39,6 +39,7 @@ mongoose
     useNewUrlParser: true,
   })
   .then(() => {
+    console.log('Conected to MongoDB')
     app.listen(
       PORT,
       console.log(
