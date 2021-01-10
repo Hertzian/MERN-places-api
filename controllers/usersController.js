@@ -84,16 +84,24 @@ exports.signup = async (req, res, next) => {
 // @desc    get place by id
 // @route   POST /api/users/login
 // @access  private
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body
 
-  const user = DUMMY_USERS.find((user) => user.email === email)
-  console.log(user)
-
-  if (!user || user.password !== password) {
-    const error =  new HttpError('Invalid credentials', 401)
+  let existingUser
+  try {
+    existingUser = await User.findOne({ email: email })
+  } catch (err) {
+    const error = new HttpError(
+      'Login in failed, please try again later',
+      500
+    )
     return next(error)
   }
 
-  res.json({ message: 'logged in', user })
+  if(!existingUser || existingUser.password !== password){
+    const error = new HttpError('Invalid credentials, could not log you in', 401)
+    return next(error)
+  }
+
+  res.json({ message: 'logged in', user: existingUser })
 }
