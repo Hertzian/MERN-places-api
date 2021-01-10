@@ -36,14 +36,29 @@ let DUMMY_PLACES = [
 // @desc    get place by id
 // @route   GET /api/places/:placeId
 // @access  private
-exports.getPlaceById = (req, res, next) => {
+exports.getPlaceById = async (req, res, next) => {
   const placeId = req.params.placeId
-  const place = DUMMY_PLACES.find((p) => p.id === placeId)
+
+  let place
+  try {
+    place = await Place.findById(placeId)
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a place.',
+      500
+    )
+    return next(error)
+  }
 
   if (!place) {
-    throw new HttpError('Could not find a place of the provided id.', 404)
+    const error = new HttpError(
+      'Could not find a place of the provided id.',
+      404
+    )
+    return next(error)
   }
-  res.json({ place })
+
+  res.json({ place: place.toObject({ getters: true }) })
 }
 
 // @desc    get place by user id
