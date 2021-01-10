@@ -21,10 +21,20 @@ const DUMMY_USERS = [
 // @desc    get place by id
 // @route   GET /api/users
 // @access  private
-exports.getUsers = (req, res, next) => {
-  const users = DUMMY_USERS
+exports.getUsers = async (req, res, next) => {
+  // const users = await User.find({}, 'email name')
+  let users
+  try {
+    users = await User.find({}, '-password')
+  } catch (err) {
+    const error = new HttpError(
+      'Fetching users failed, please try again later.',
+      500
+    )
+    return next(error)
+  }
 
-  res.json(users)
+  res.json(users.map((user) => user.toObject({ getters: true })))
 }
 
 // @desc    get place by id
@@ -91,15 +101,15 @@ exports.login = async (req, res, next) => {
   try {
     existingUser = await User.findOne({ email: email })
   } catch (err) {
-    const error = new HttpError(
-      'Login in failed, please try again later',
-      500
-    )
+    const error = new HttpError('Login in failed, please try again later', 500)
     return next(error)
   }
 
-  if(!existingUser || existingUser.password !== password){
-    const error = new HttpError('Invalid credentials, could not log you in', 401)
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError(
+      'Invalid credentials, could not log you in',
+      401
+    )
     return next(error)
   }
 
