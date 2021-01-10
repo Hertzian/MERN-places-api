@@ -1,4 +1,6 @@
 const express = require('express')
+const dotenv = require('dotenv')
+dotenv.config()
 
 // routes
 const placesRoutes = require('./routes/places-routes')
