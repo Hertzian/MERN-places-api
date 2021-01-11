@@ -1,7 +1,5 @@
-const { v4 } = require('uuid')
 const { validationResult } = require('express-validator')
 const mongoose = require('mongoose')
-
 const HttpError = require('../models/http-error')
 const getCoordsForAddress = require('../utils/location')
 const Place = require('../models/PlaceModel')
@@ -41,9 +39,10 @@ exports.getPlaceById = async (req, res, next) => {
 exports.getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.userId
 
-  let places
+  // let places
+  let userWithPlaces
   try {
-    places = await Place.find({ creator: userId }).exec()
+    userWithPlaces = await User.findById(userId).populate('places')
   } catch (err) {
     const error = new HttpError(
       'Fetching places failed, please try again later.',
@@ -53,7 +52,8 @@ exports.getPlacesByUserId = async (req, res, next) => {
     return next(error)
   }
 
-  if (!places || places.length === 0) {
+  // if (!places || places.length === 0) {}
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
     const error = new HttpError(
       'Could not find places of the provided user id.',
       404
@@ -62,7 +62,7 @@ exports.getPlacesByUserId = async (req, res, next) => {
     return next(error)
   }
 
-  res.json({ places: places.map((place) => place.toObject({ getters: true })) })
+  res.json({ places: userWithPlaces.places.map((place) => place.toObject({ getters: true })) })
 }
 
 // @desc    get place by user id

@@ -1,5 +1,4 @@
 const HttpError = require('../models/http-error')
-const { v4 } = require('uuid')
 const { validationResult } = require('express-validator')
 const User = require('../models/UserModel')
 
@@ -7,7 +6,6 @@ const User = require('../models/UserModel')
 // @route   GET /api/users
 // @access  private
 exports.getUsers = async (req, res, next) => {
-  // const users = await User.find({}, 'email name')
   let users
   try {
     users = await User.find({}, '-password')
