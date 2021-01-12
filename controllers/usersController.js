@@ -61,7 +61,7 @@ exports.signup = async (req, res, next) => {
     password,
     image:
       'https://images.pexels.com/photos/3418814/pexels-photo-3418814.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
-    places: []
+    places: [],
   })
 
   try {
@@ -96,5 +96,8 @@ exports.login = async (req, res, next) => {
     return next(error)
   }
 
-  res.json({ message: 'logged in', user: existingUser })
+  res.json({
+    message: 'logged in',
+    user: existingUser.toObject({ getters: true }),
+  })
 }

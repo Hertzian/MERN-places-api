@@ -72,7 +72,6 @@ exports.createPlace = async (req, res, next) => {
   const errors = validationResult(req)
 
   if (!errors.isEmpty()) {
-    console.log(errors)
     return next(
       new HttpError('Invalid inputs passed, please check your data', 422)
     )
@@ -109,8 +108,6 @@ exports.createPlace = async (req, res, next) => {
     const error = new HttpError('Could not find user for provided Id.', 404)
     return next(error)
   }
-
-  console.log(user)
 
   try {
     const sess = await mongoose.startSession()
