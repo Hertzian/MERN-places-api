@@ -59,8 +59,7 @@ exports.signup = async (req, res, next) => {
     name,
     email,
     password,
-    image:
-      'https://images.pexels.com/photos/3418814/pexels-photo-3418814.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+    image: req.file.path,
     places: [],
   })
 

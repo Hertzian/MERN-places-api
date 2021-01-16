@@ -1,3 +1,4 @@
+const fs = require('fs')
 const express = require('express')
 const dotenv = require('dotenv')
 dotenv.config()
@@ -33,6 +34,12 @@ app.use((req, res, next) => {
 
 // error handling
 app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err)
+    })
+  }
+
   if (res.headerSent) {
     return next(error)
   }
