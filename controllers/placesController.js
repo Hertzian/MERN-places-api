@@ -1,3 +1,4 @@
+const fs = require('fs')
 const { validationResult } = require('express-validator')
 const mongoose = require('mongoose')
 const HttpError = require('../models/http-error')
@@ -62,7 +63,11 @@ exports.getPlacesByUserId = async (req, res, next) => {
     return next(error)
   }
 
-  res.json({ places: userWithPlaces.places.map((place) => place.toObject({ getters: true })) })
+  res.json({
+    places: userWithPlaces.places.map((place) =>
+      place.toObject({ getters: true })
+    ),
+  })
 }
 
 // @desc    get place by user id
@@ -187,23 +192,22 @@ exports.deletePlace = async (req, res, next) => {
     return next(error)
   }
 
-  if(!place){
-    const error = new HttpError(
-      'Could not find place for this id.',
-      404
-    )
+  if (!place) {
+    const error = new HttpError('Could not find place for this id.', 404)
     return next(error)
   }
+
+  const imagePath = place.image
 
   let user
   try {
     const sess = await mongoose.startSession()
     sess.startTransaction()
-    await place.remove({session: sess})
+    await place.remove({ session: sess })
 
     place.creator.places.pull(place)
 
-    await place.creator.save({session: sess})
+    await place.creator.save({ session: sess })
     await sess.commitTransaction()
   } catch (err) {
     const error = new HttpError(
@@ -212,6 +216,8 @@ exports.deletePlace = async (req, res, next) => {
     )
     return next(error)
   }
+
+  fs.unlink(imagePath, (err) => console.log())
 
   res.status(200).json({ message: 'Deleted place.' })
 }
