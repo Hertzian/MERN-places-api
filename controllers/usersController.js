@@ -92,7 +92,9 @@ exports.signup = async (req, res, next) => {
     return next(error)
   }
 
-  res.status(201).json({ userId: createdUser.id, email: createdUseremail, token })
+  res
+    .status(201)
+    .json({ userId: createdUser.id, email: createdUser.email, token })
 }
 
 // @desc    get place by id
@@ -151,6 +153,6 @@ exports.login = async (req, res, next) => {
   res.json({
     userId: existingUser.id,
     email: existingUser.email,
-    token
+    token,
   })
 }
