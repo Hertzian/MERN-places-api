@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 const express = require('express')
 const dotenv = require('dotenv')
 dotenv.config()
@@ -12,6 +13,9 @@ const HttpError = require('./models/http-error')
 const app = express()
 
 app.use(express.json())
+
+// middleware to access images
+app.use('/uploads/images', express.static(path.join('uploads', 'images')))
 
 // to prevent CORS
 app.use((req, res, next) => {
