@@ -56,10 +56,14 @@ app.use((error, req, res, next) => {
 const PORT = process.env.PORT || 5000
 
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-  })
+.connect(process.env.MONGO_URI, { // with dotenv
+  // .connect(
+  //   `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0-qhfig.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+  //   {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+    }
+  )
   .then(() => {
     console.log('Conected to MongoDB')
     app.listen(
