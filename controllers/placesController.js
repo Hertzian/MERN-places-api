@@ -159,6 +159,12 @@ exports.updatePlace = async (req, res, next) => {
     return next(error)
   }
 
+  if (place.creator.toString() !== req.userData.userId) {
+    // userData is from check-auth.js MW
+    const error = new HttpError('You are not allowed to edit this place.', 401)
+    return next(error)
+  }
+
   place.title = title
   place.description = description
 
@@ -194,6 +200,12 @@ exports.deletePlace = async (req, res, next) => {
 
   if (!place) {
     const error = new HttpError('Could not find place for this id.', 404)
+    return next(error)
+  }
+
+  if (place.creator.toString() !== req.userData.userId) {
+    // userData is from check-auth.js MW
+    const error = new HttpError('You are not allowed to edit this place.', 401)
     return next(error)
   }
 
