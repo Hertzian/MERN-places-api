@@ -203,9 +203,9 @@ exports.deletePlace = async (req, res, next) => {
     return next(error)
   }
 
-  if (place.creator.toString() !== req.userData.userId) {
+  if (place.creator.id !== req.userData.userId) { // without toString() because of getters
     // userData is from check-auth.js MW
-    const error = new HttpError('You are not allowed to edit this place.', 401)
+    const error = new HttpError('You are not allowed to delete this place.', 401)
     return next(error)
   }
 
